@@ -8,7 +8,7 @@ const getCurrentWeatherData = async (city) => {
         const fetchData = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${weatherAPIKey}`, {mode: "cors"})
         return fetchData.json()
     } catch (err) {
-        console.log(err)
+        console.log("Oopsie something went wrong.")
     }
 }
 
@@ -109,16 +109,17 @@ const displayNextSixHours = async (oneCall) => {
         tempForecastContainer.textContent = ""
         for (let i = 1; i < 7; i++) {
             let {dt, temp, feels_like} = hourly[i]
-            let {description} = hourly[i].weather[0]
+            let {icon} = hourly[i].weather[0]
+            let iconUrl = `http://openweathermap.org/img/wn/${icon}@2x.png`
             let localTime = getLocalTimeAndDate(dt, timezone)
             let currentTemp = convertKelvinToCelsius(temp)
             let feelsLike = convertKelvinToCelsius(feels_like)
             tempForecastContainer.innerHTML += `
                 <div class="forecast">
-                    <div class="description">${description}</div>
+                    <div class="description"><img src=${iconUrl}></div>
                     <div class="time">${localTime}</div>
-                    <div class="current-temp">${currentTemp}</div>
-                    <div class="feels-like">feels like ${feelsLike}</div>
+                    <div class="current-temp">${currentTemp}°C</div>
+                    <div class="feels-like">feels like ${feelsLike}°C</div>
                 </div>
             `
         }
@@ -131,13 +132,13 @@ const displayEverything = async (location) => {
     let weatherData = await getCurrentWeatherData(location)
     let lon = weatherData.coord.lon
     let lat = weatherData.coord.lat
-    // let oneCall = await oneCallData(lon, lat)
+    let oneCall = await oneCallData(lon, lat)
     displayCountry(weatherData)
     displayTimeAndDate(weatherData)
     displayCurrentWeather(weatherData)
     displayTemperatureCelsius(weatherData)
     displayFeelsLike(weatherData)
-    // displayNextSixHours(oneCall)
+    displayNextSixHours(oneCall)
 }
 
 (async () => {
@@ -151,7 +152,7 @@ const displayEverything = async (location) => {
             searchInput.value = ""
         }
     )
-    searchInput.addEventListener("keypress", (e) => {
+    searchInput.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
             displayEverything(e.target.value)
             searchInput.value = ""
