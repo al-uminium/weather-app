@@ -4,24 +4,36 @@ import config from "./config.js"
 
 const getCurrentWeatherData = async (city) => {
     const weatherAPIKey = config.weatherAPIKey
-    const fetchData = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${weatherAPIKey}`, {mode: "cors"})
-    return fetchData.json()
+    try {
+        const fetchData = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${weatherAPIKey}`, {mode: "cors"})
+        return fetchData.json()
+    } catch (err) {
+        console.log(err)
+    }
 }
 
 const oneCallData = async (lon, lat) => {
     const weatherAPIKey = config.weatherAPIKey
-    const fetchData = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${weatherAPIKey}`)
-    return fetchData.json()
+    try {
+        const fetchData = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${weatherAPIKey}`)
+        return fetchData.json()
+    } catch (err) {
+        console.log("Oopsie something went wrong.")
+    }
 }
 
 const getIPAddress = async () => {
     const url = "http://ip-api.com/json/"
-    const clientIP = await fetch(url, {mode: "cors"})
-    const clientData = await clientIP.json()
-    return clientData.city
+    try {
+        const clientIP = await fetch(url, {mode: "cors"})
+        const clientData = await clientIP.json()
+        return clientData.city
+    } catch (err) {
+        console.log(err)
+    }
 }
 
-//-----------------------------------------------------------------Unit converters-----------------------------------------------------------------
+//-----------------------------------------------------------------Helper functions -- getters-----------------------------------------------------------------
 
 const epochConverter = (dt) => {
     let d = new Date(0)
@@ -33,7 +45,6 @@ const convertKelvinToCelsius = (temp) => {
     return Math.round((temp - 273.15)*10)/10
 }
 
-//-----------------------------------------------------------------Helper functions -- getters-----------------------------------------------------------------
 
 const getLocalTimeAndDate = (time, timezone) => {
     let clientTimeZone = new Date().getTimezoneOffset()
@@ -70,35 +81,80 @@ const displayTemperatureCelsius = async (weatherData) => {
     minTemp.textContent = `${min_Temp}°C ᐁ`
 }
 
+const displayCurrentWeather = async (weatherData) => {
+    let currentWeather = document.querySelector("#current-weather")
+    let {icon} = weatherData.weather[0]
+
+    currentWeather.innerHTML = `<img src="http://openweathermap.org/img/wn/${icon}@2x.png">`
+}
+
 const displayFeelsLike = async (weatherData) => {
     let feelsLike = document.querySelector("#feels-like")
     let temp = Math.round((weatherData.main.feels_like - 273.15)*10)/10
-    feelsLike.textContent = `Feels like ${temp}°C`
+    feelsLike.textContent = `feels like ${temp}°C`
+}
+
+const displayCountry = async (weatherData) => {
+    let country = document.querySelector("#country")
+    country.textContent = weatherData.name
 }
 
 const displayNextSixHours = async (oneCall) => {
     const timezone = oneCall.timezone_offset
     const hourly = oneCall.hourly
 
-    console.log(oneCall)
-
-    for (let i = 1; i < 7; i++) {
-        let {dt, temp, feels_like} = hourly[i]
-        let {description} = hourly[i].weather[0]
-        console.log(getLocalTimeAndDate(dt, timezone), convertKelvinToCelsius(temp), convertKelvinToCelsius(feels_like), description)
+    const createForecastSubCtn = () => {
+        const tempForecastContainer = document.querySelector("#temp-forecast-ctn")
+        //remove previous elements
+        tempForecastContainer.textContent = ""
+        for (let i = 1; i < 7; i++) {
+            let {dt, temp, feels_like} = hourly[i]
+            let {description} = hourly[i].weather[0]
+            let localTime = getLocalTimeAndDate(dt, timezone)
+            let currentTemp = convertKelvinToCelsius(temp)
+            let feelsLike = convertKelvinToCelsius(feels_like)
+            tempForecastContainer.innerHTML += `
+                <div class="forecast">
+                    <div class="description">${description}</div>
+                    <div class="time">${localTime}</div>
+                    <div class="current-temp">${currentTemp}</div>
+                    <div class="feels-like">feels like ${feelsLike}</div>
+                </div>
+            `
+        }
     }
+
+    createForecastSubCtn()
 }
 
-const displayEverything = async () => {
-    let clientLocation = await getIPAddress()
-    let weatherData = await getCurrentWeatherData(clientLocation)
+const displayEverything = async (location) => {
+    let weatherData = await getCurrentWeatherData(location)
     let lon = weatherData.coord.lon
     let lat = weatherData.coord.lat
-    let oneCall = await oneCallData(lon, lat)
-    displayNextSixHours(oneCall)
+    // let oneCall = await oneCallData(lon, lat)
+    displayCountry(weatherData)
     displayTimeAndDate(weatherData)
+    displayCurrentWeather(weatherData)
     displayTemperatureCelsius(weatherData)
     displayFeelsLike(weatherData)
+    // displayNextSixHours(oneCall)
 }
 
-displayEverything()
+(async () => {
+    let clientLocation = await getIPAddress()
+    displayEverything(clientLocation)
+
+    const searchBtn = document.querySelector(".search")
+    const searchInput = document.querySelector("#search")
+    searchBtn.addEventListener("click", () => {
+            displayEverything(searchInput.value)
+            searchInput.value = ""
+        }
+    )
+    searchInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            displayEverything(e.target.value)
+            searchInput.value = ""
+        }
+    })
+})();
