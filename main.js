@@ -54,7 +54,7 @@ const convertWeatherData = async() => {
     return weatherData
 }
 
-let x = convertWeatherData()
+// let x = convertWeatherData()
 
 // let cityQuery = "Punkeydoodles Corners"
 
