@@ -11,9 +11,21 @@ const getWeatherData = async() => {
     return data
 }
 
-const getLatAndLon = async() => {
-
+const getLatAndLon = async(cityName, stateCode, countryCode, limit) => {
+    const response = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${cityName},${stateCode},${countryCode}&limit=${limit}&appid=${APIKEY}`, {mode: 'cors'})
+    const data = await response.json()
+    return data
 }
+
+const test = async() => {
+    const cityName = "Portland"
+    const stateCode = "Maine"
+    const response = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${cityName},${stateCode}&appid=${APIKEY}`, {mode: 'cors'})
+    const data = await response.json()
+    console.log(data)
+}
+
+test()
 
 const convertWeatherData = async() => {
     const data = await getWeatherData()
