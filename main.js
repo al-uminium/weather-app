@@ -1,34 +1,39 @@
 import { APIKEY } from './apikey.js' //file was .gitignored
 
-// fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=33.44&lon=-94.04&exclude=hourly,daily&appid=${APIKEY}`, {mode: 'cors'})
-//     .then((response) => {
-//         console.log(response.json())
-// })
-
-const getWeatherData = async() => {
-    const response = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=33.44&lon=-94.04&appid=${APIKEY}`, {mode: 'cors'})
+const getWeatherData = async(lat, lon) => {
+    const response = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${APIKEY}`, {mode: 'cors'})
     const data = await response.json()
     return data
 }
 
-const getLatAndLon = async(cityName, stateCode, countryCode, limit) => {
-    const response = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${cityName},${stateCode},${countryCode}&limit=${limit}&appid=${APIKEY}`, {mode: 'cors'})
+const getLatAndLon = async(cityName, stateCode=undefined, countryCode=undefined) => {
+    let response;
+
+    if (stateCode==undefined) {
+        response = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${cityName},${countryCode}&appid=${APIKEY}`, {mode: 'cors'})
+    } else if (countryCode==undefined) {
+        response = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${cityName},${stateCode}&appid=${APIKEY}`, {mode: 'cors'})
+    } else {
+        response = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${cityName},${stateCode},${countryCode}&appid=${APIKEY}`, {mode: 'cors'})
+    }
+
     const data = await response.json()
     return data
 }
 
-const test = async() => {
-    const cityName = "Portland"
-    const stateCode = "Maine"
-    const response = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${cityName},${stateCode}&appid=${APIKEY}`, {mode: 'cors'})
-    const data = await response.json()
-    console.log(data)
+const convertCityToLatLon = async (cityName, stateCode, countryCode) => {
+    const data = await getLatAndLon(cityName, stateCode, countryCode)
+    console.log("city to latlon")
+    console.log(data[0].lat)
+    console.log(data[0].lon)
+    const lat = data[0].lat;
+    const lon = data[0].lon;
+
+    return {lat, lon};
 }
 
-test()
-
-const convertWeatherData = async() => {
-    const data = await getWeatherData()
+const convertWeatherData = async(lat, lon) => {
+    const data = await getWeatherData(lat, lon)
     
     //FL -> Feels Like
     // TODO: generate weatherData dynamically
@@ -65,6 +70,14 @@ const convertWeatherData = async() => {
 
     return weatherData
 }
+
+const APIController = async (cityName, stateCode, countryCode) => {
+    const latlonData = await convertCityToLatLon(cityName, stateCode, countryCode)
+    const weatherData = await convertWeatherData(latlonData.lat, latlonData.lon)
+    console.log(weatherData);
+}
+
+APIController("Portland, OR")
 
 // let x = convertWeatherData()
 
