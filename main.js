@@ -79,11 +79,3 @@ const APIController = async (cityName, stateCode, countryCode) => {
 
 APIController("Portland, OR")
 
-// let x = convertWeatherData()
-
-// let cityQuery = "Punkeydoodles Corners"
-
-// fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${cityQuery}&limit=5&appid=${APIKEY}`, {mode: 'cors'})
-//     .then((response) => {
-//         console.log(response.json())
-// })
