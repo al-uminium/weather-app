@@ -47,13 +47,11 @@ const convertWeatherData = async(lat, lon) => {
     }
     
     // to add hourly weather dynamically
-    for (let i = 0; i < 4; i++){
-        weatherData[`hourlyTemp${i+1}`] = null;
-        weatherData[`hourlyFeelsLike${i+1}`] = null;
-        weatherData[`hourlyWeather${i+1}`] = null;
-        weatherData[`hourlyWeatherID${i+1}`] = null;
-        weatherData[`hourlyWeatherIcon${i+1}`] = null;
-    }
+    weatherData[`hourlyTemp`] = new Array(4);
+    weatherData[`hourlyFeelsLike`] = new Array(4);
+    weatherData[`hourlyWeather`] = new Array(4);
+    weatherData[`hourlyWeatherID`] = new Array(4);
+    weatherData[`hourlyWeatherIcon`] = new Array(4);
 
     //amend current weather data
     weatherData.currentTemp = Number.parseFloat(data.current.temp).toFixed(1);
@@ -64,14 +62,12 @@ const convertWeatherData = async(lat, lon) => {
 
     //amend hourly weather data
     for (let i = 0; i < 4; i++) {
-        weatherData[`hourlyTemp${i+1}`] = Number.parseFloat(data.hourly[i].temp).toFixed(1);
-        weatherData[`hourlyFeelsLike${i+1}`] = Number.parseFloat(data.hourly[i].feels_like).toFixed(1);
-        weatherData[`hourlyWeather${i+1}`] = data.hourly[i].weather[0].main;
-        weatherData[`hourlyWeatherID${i+1}`] = data.hourly[i].weather[0].id;
-        weatherData[`hourlyWeatherIcon${i+1}`] = data.hourly[i].weather[0].icon;
+        weatherData[`hourlyTemp`][`${i}`] = Number.parseFloat(data.hourly[i].temp).toFixed(1);
+        weatherData[`hourlyFeelsLike`][`${i}`] = Number.parseFloat(data.hourly[i].feels_like).toFixed(1);
+        weatherData[`hourlyWeather`][`${i}`] = data.hourly[i].weather[0].main;
+        weatherData[`hourlyWeatherID`][`${i}`] = data.hourly[i].weather[0].id;
+        weatherData[`hourlyWeatherIcon`][`${i}`] = data.hourly[i].weather[0].icon;
     }
-
-    console.log(weatherData)
 
     return weatherData
 }
@@ -86,6 +82,9 @@ const APIController = async (cityName, stateCode, countryCode) => {
     await DisplayController.updateCurrentWeatherAndUmbrellaStatus(weatherData.currentWeather);
     await DisplayController.updateCurrentTemperature(weatherData.currentTemp);
     await DisplayController.updateCurrentFeelsLike(weatherData.currentFeelsLike);
+    await DisplayController.updateHourlyWeatherIcon(weatherData.hourlyWeatherIcon);
+    await DisplayController.updateHourlyTemps(weatherData.hourlyTemp);
+    await DisplayController.updateHourlyFeelsLike(weatherData.hourlyFeelsLike);
 }
 
 const DisplayController = (() => {
@@ -93,8 +92,8 @@ const DisplayController = (() => {
     const umbrellaStatus = document.querySelector(".umbrella-status");
     const weatherStatus = document.querySelector(".weather-status");
     const currentTemp = document.querySelector(".current-temp");
-    const currentIcon = document.querySelector(".current-icon")
-    const feelsLike = document.querySelector(".feels-like")
+    const currentIcon = document.querySelector(".current-icon");
+    const feelsLike = document.querySelector(".feels-like");
 
     const updateCurrentWeatherAndUmbrellaStatus = (currentWeatherStatus) => {
         // TODO - add in night variants for background.  
@@ -103,67 +102,82 @@ const DisplayController = (() => {
                 weatherStatus.innerText = "It's storming out there."
                 umbrellaStatus.innerText = "You definitely need an umbrella"
                 document.body.style.backgroundImage = "url('./background-img/thunderstorm.jpg')"
+                break
             case "Drizzle":
                 weatherStatus.innerText = "It's drizzling."
                 umbrellaStatus.innerText = "You need an umbrella ☂️"
                 document.body.style.backgroundImage = "url('./background-img/drizzle.jpg')"
+                break
             case "Rain":
                 weatherStatus.innerText = "It's raining!"
                 umbrellaStatus.innerText = "You need an umbrella ☔️"
                 document.body.style.backgroundImage = "url('./background-img/rain.jpg')"
+                break
             case "Snow":
                 weatherStatus.innerText = "It's snowing!"
                 umbrellaStatus.innerHTML = "You need an umbrella, and a jacket to keep warm! 🌨"
                 document.body.style.backgroundImage = "url('./background-img/snow.jpg')"
+                break
             case "Mist":
                 weatherStatus.innerText = "It's misty."
                 umbrellaStatus.innerText = "You don't need an umbrella"
                 document.body.style.backgroundImage = "url('./background-img/atmosphere_mist.jpg')"
+                break
             case "Smoke":
                 weatherStatus.innerText = "The air's smoky out there"
                 umbrellaStatus.innerText = "You don't need an umbrella"
                 document.body.style.backgroundImage = "url('./background-img/atmosphere_Smoke.jpg')"
+                break
             case "Haze":
                 weatherStatus.innerText = "It's kinda hazy on the horizon..."
                 umbrellaStatus.innerText = "You don't need an umbrella"
                 document.body.style.backgroundImage = "url('./background-img/atmosphere_haze.jpg')"
+                break
             case "Dust":
                 weatherStatus.innerText = "The winds are whipping up the dust!"
                 umbrellaStatus.innerText = "You don't need an umbrella"
                 document.body.style.backgroundImage = "url('./background-img/atmosphere_dust.jpg')"
+                break
             case "Fog":
                 weatherStatus.innerText = "Fog is encroaching the area"
                 umbrellaStatus.innerText = "You don't need an umbrella"
                 document.body.style.backgroundImage = "url('./background-img/atmosphere_fog.jpg')"
+                break
             case "Sand":
                 weatherStatus.innerText = "The winds are whipping up the sand!"
                 umbrellaStatus.innerText = "You don't need an umbrella"
                 document.body.style.backgroundImage = "url('./background-img/atmosphere_dust.jpg')"
+                break
             case "Ash":
                 weatherStatus.innerText = "Ashes from the mountain is trickling down"
                 umbrellaStatus.innerText = "An umbrella might help."
                 document.body.style.backgroundImage = "url('./background-img/atmosphere_ash.jpg')"
+                break
             case "Squall":
                 weatherStatus.innerText = "There's a squall in the area!"
                 umbrellaStatus.innerText = "You need an umbrella, if you're heading out!"
                 document.body.style.backgroundImage = "url('./background-img/atmosphere_squall.jpg')"
+                break
             case "Tornado":
                 weatherStatus.innerText = "There's a torndao in the area!"
                 umbrellaStatus.innerText = "You need an umbrella, if you're heading out!"
                 document.body.style.backgroundImage = "url('./background-img/atmosphere_tornado.jpg')"
+                break
             case "Clear":
                 weatherStatus.innerText = "The skies are clear."
                 umbrellaStatus.innerText = "You don't need an umbrella"
                 document.body.style.backgroundImage = "url('./background-img/clear.jpg')"
+                break
             case "Clouds":
                 weatherStatus.innerText = "The skies are cloudy."
                 umbrellaStatus.innerText = "You might need an umbrella"
                 document.body.style.backgroundImage = "url('./background-img/clouds.jpg')"
+                break
         }
     }
 
     const updateCurrentWeatherIcon = (weatherIcon) => {
-        currentIcon.src = `http://openweathermap.org/img/wn/${weatherIcon}.png`
+        currentIcon.src = `./weather-icons/${weatherIcon}.png`
     }
 
     const updateCurrentTemperature = (currentTemperature) => {
@@ -171,16 +185,56 @@ const DisplayController = (() => {
     }
 
     const updateCurrentFeelsLike = (currFeelsLike) => {
-        feelsLike.innerText = `${currFeelsLike}°C`
+        feelsLike.innerHTML = `<div>feels like</div> ${currFeelsLike}°C`
     }
 
+    // Hourly display controller
+
+    const hourlyWeatherIcons = document.querySelectorAll(".hourly-icon");
+    const hourlyTemps = document.querySelectorAll(".hourly-temp");
+    const hourlyFeelsLikes = document.querySelectorAll(".hourly-feels-like");
+
+    const updateHourlyWeatherIcon = (hourlyWeatherIcon) => {
+        for (let i = 0; i<4; i++) {
+            hourlyWeatherIcons[i].childNodes[0].src = `./weather-icons/${hourlyWeatherIcon[i]}.png`
+        }
+    }
+
+    const updateHourlyTemps = (hourlyTemp) => {
+        for (let i = 0; i<4; i++) {
+            hourlyTemps[i].innerText = hourlyTemp[i]
+        }
+    }
+    
+    const updateHourlyFeelsLike = (hourlyFeelsLike) => {
+        for (let i = 0; i < 4; i++) {
+            hourlyFeelsLikes[i].innerText = "feels like " + hourlyFeelsLike[i]
+        }
+    }
+
+    const errorMessage = () => {
+        umbrellaStatus.innerText = "This city doesn't exist :(";
+        const currWeatherCtn = document.querySelector(".currweather-container");
+        const hrlyForecastCtn = document.querySelector(".hourly-forecast-container");
+
+        const containers = [currWeatherCtn, hrlyForecastCtn]
+
+        containers.forEach(ctn => {
+            console.log(ctn)
+            ctn.style.display = "none"
+        });
+    }
     return {
         updateCurrentWeatherAndUmbrellaStatus, 
         updateCurrentWeatherIcon,
         updateCurrentTemperature,
         updateCurrentFeelsLike,
+        updateHourlyWeatherIcon,
+        updateHourlyTemps,
+        updateHourlyFeelsLike,
+        errorMessage,
     }
 })()
 
-APIController("Portland, OR")
+APIController("Singapore")
 
