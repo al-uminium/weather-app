@@ -7,3 +7,4 @@ This is a revisit of the weather app from The Odin Project :)
 
 ## Learning points:
 - Learnt how to change background image dynamically (based on weather condition)
+- `document.querySelectorAll` returns a static Node list, compared to `document.getElementsBy...`, which produces a live Node list.
