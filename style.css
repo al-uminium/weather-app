@@ -17,42 +17,55 @@ html, body {
     display: grid;
     width: 100%;
     height: 100%;
-    grid-template-rows: 1fr 1fr 3fr 2fr;
+    grid-template-rows: 1fr 0.5fr 3fr 2fr;
     padding-left: clamp(0.5rem,2.5vw,2rem);
 }
 
 /* Searchbar */
 .searchbar-container {
     display: flex;
-    width: min(25rem, 100vw);
+    width: min(25rem, 95vw);
     height: 2rem;
     align-items: center;
     align-self: center;
+    justify-content: space-between;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
 }
 
 .searchbar {
     width: min(20rem, 80vw);
+    padding-left: 1rem;
     border: none;
+    background: none;
 }
 
 .search-icon {
     color: rgb(134, 134, 134);
+    padding-right: 1rem;
 }
 
 /* Umbrella status */
 .umbrella-status {
     font-size: clamp(1rem, 2.5vw, 2rem);
-
 }
 
+.weather-status {
+    font-size: clamp(0.8rem, 2vw, 2rem);
+}
+
+
 /* Current weather grid container */
-/* To remove this the icon after done testing*/
 .currweather-container {
     display: grid;
-    width: min(25rem, 100vw);
-    grid-template-columns: 3fr 1fr;
+    width: min(95vw, 35rem);
+    grid-template-columns: 2fr 1fr;
     grid-template-rows: 1fr 1fr;
-    /* background-color: antiquewhite; */
+    -webkit-backdrop-filter: blur(8px); 
+    backdrop-filter: blur(4px); 
+    box-shadow: 0px 10px 15px 10px rgb(0 0 0 / 15%);
+    background-color: rgb(228 228 228 / 15%); 
+    border-radius: 3px;
 }
 
 .weather-icon {
@@ -63,7 +76,7 @@ html, body {
 }
 
 .weather-icon > img {
-    width: 100%;
+    width: 65%;
 }
 
 .current-temp {
@@ -72,7 +85,12 @@ html, body {
 
 .current-temp, .feels-like {
     padding: 1rem;
-    font-size: clamp(3rem, 10vw, 4.5rem);
+    font-size: clamp(2rem, 8vw, 2.4rem);
+    align-self: center;
+}
+
+.feels-like > div {
+    font-size: 1rem;
 }
 
 /* Hourly forecast container */
@@ -80,17 +98,46 @@ html, body {
     display: grid;
     grid-template-rows: 1fr;
     grid-template-columns: repeat(4, 1fr);
-    width: min(100vw, 50rem);
+    width: min(95vw, 35rem);
+    height: min(80vw, 75%);
     overflow-x: auto;
     overflow-y: hidden;
+    font-family: "Dosis", sans-serif;
+    font-size: 0.9rem;
+    margin: 1.3rem 0 1.3rem 0;
+    -webkit-backdrop-filter: blur(8px); 
+    backdrop-filter: blur(4px); 
+    box-shadow: 0px 10px 15px 10px rgb(0 0 0 / 15%);
+    background-color: rgb(228 228 228 / 15%); 
+    border-radius: 3px;
 }
 
 .hourlytemp-cont {
     display: grid;
-    grid-template: 1fr 1fr / 5rem 5rem;
+    grid-template: 1fr 0.5fr/5.5rem 5.5rem;
+    justify-items: center;
+    align-items: center;
+    padding-right: 0.5rem;
 }
 
 .hourly-icon {
+    display: grid;
     grid-column-start: 1;
     grid-column-end: 3;
+    height: 100%;
+    width: 100%;
+    justify-items: center;
+    align-items: center;
+}
+
+.hourly-icon > img {
+    width: 40%;
+}
+
+.dark-font {
+    color: rgb(46, 50, 54);
+}
+
+.light-font {
+    color: rgb(207, 217, 227);
 }
